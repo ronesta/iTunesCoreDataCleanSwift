@@ -2,7 +2,7 @@
 //  AlbumViewController.swift
 //  iTunesCoreDataCleanSwift
 //
-//  Created by Ибрагим Габибли on 11.02.2025.
+//  Created by Ибрагим Габибли on 17.02.2025.
 //
 
 import Foundation
@@ -10,7 +10,8 @@ import UIKit
 import SnapKit
 
 final class AlbumViewController: UIViewController {
-    var album: AlbumModel?
+    var interactor: AlbumInteractorProtocol
+    var album: AlbumModel
 
     private let albumImageView: UIImageView = {
         let image = UIImageView()
@@ -42,10 +43,22 @@ final class AlbumViewController: UIViewController {
         return label
     }()
 
+    init(interactor: AlbumInteractorProtocol,
+         album: AlbumModel
+    ) {
+        self.interactor = interactor
+        self.album = album
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        setupAlbum()
+        fetchAlbum()
     }
 
     private func setupViews() {
@@ -79,19 +92,19 @@ final class AlbumViewController: UIViewController {
         }
     }
 
-    private func setupAlbum() {
-        guard let album else {
-            return
-        }
+    func fetchAlbum() {
+        let request = AlbumModels.Request(album: album)
+        interactor.loadAlbumDetails(request: request)
+    }
 
-        guard let imageData = CoreDataManager.shared.fetchImageData(forImageId: Int(album.artistId)),
-              let image = UIImage(data: imageData) else {
-            return
-        }
+}
 
-        albumImageView.image = image
-        albumNameLabel.text = album.collectionName
-        artistNameLabel.text = album.artistName
-        collectionPriceLabel.text = "\(album.collectionPrice) $"
+// MARK: - AlbumViewProtocol
+extension AlbumViewController: AlbumViewProtocol {
+    func displayAlbumDetails(viewModel: AlbumModels.ViewModel) {
+        albumNameLabel.text = viewModel.album.collectionName
+        artistNameLabel.text = viewModel.album.artistName
+        collectionPriceLabel.text = "\(viewModel.album.collectionPrice) $"
+        albumImageView.image = viewModel.image
     }
 }

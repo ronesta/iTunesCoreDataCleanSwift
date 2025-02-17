@@ -2,18 +2,21 @@
 //  SearchHistoryViewController.swift
 //  iTunesCoreDataCleanSwift
 //
-//  Created by Ибрагим Габибли on 11.02.2025.
+//  Created by Ибрагим Габибли on 17.02.2025.
 //
 
+import Foundation
 import UIKit
 
 final class SearchHistoryViewController: UIViewController {
+    var interactor: SearchHistoryInteractorProtocol?
+    var router: SearchHistoryRouterProtocol?
+
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.separatorStyle = .singleLine
         return tableView
     }()
-
     private let id = "cell"
     var searchHistory = [String]()
 
@@ -45,9 +48,16 @@ final class SearchHistoryViewController: UIViewController {
         }
     }
 
-    func updateSearchHistory() {
-        searchHistory = CoreDataManager.shared.getSearchHistory()
-        self.tableView.reloadData()
+    private func updateSearchHistory() {
+        let request = SearchHistoryModels.Request()
+        interactor?.fetchSearchHistory(request: request)
+    }
+}
+// MARK: - SearchHistoryViewProtocol
+extension SearchHistoryViewController: SearchHistoryViewProtocol {
+    func displaySearchHistory(viewModel: SearchHistoryModels.ViewModel) {
+        searchHistory = viewModel.history
+        tableView.reloadData()
     }
 }
 
@@ -69,13 +79,6 @@ extension SearchHistoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedTerm = searchHistory[indexPath.row]
-        performSearch(for: selectedTerm)
-    }
-
-    func performSearch(for term: String) {
-        let searchViewController = SearchViewController()
-        searchViewController.searchAlbums(with: term)
-        searchViewController.searchBar.isHidden = true
-        navigationController?.pushViewController(searchViewController, animated: true)
+        router?.routeToSearch(with: selectedTerm)
     }
 }
