@@ -11,7 +11,6 @@ import UIKit
 final class AlbumAssembly {
     static func build(with album: AlbumModel) -> UIViewController {
         let storageManager = CoreDataManager()
-        let networkManager = NetworkManager(storageManager: storageManager)
 
         let presenter = AlbumPresenter()
         let worker = AlbumWorker(storageManager: storageManager)

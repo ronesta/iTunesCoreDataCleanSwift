@@ -58,7 +58,6 @@ final class SearchWorker: SearchWorkerProtocol {
                 }
             }
 
-
             group.notify(queue: .main) { [weak self] in
                 guard let self else {
                     return

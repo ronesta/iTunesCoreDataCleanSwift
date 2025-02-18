@@ -105,7 +105,7 @@ extension SearchViewController: UICollectionViewDataSource {
 
             cell.configure(with: album, image: image)
         }
-        
+
         return cell
     }
 }
